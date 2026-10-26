@@ -132,25 +132,28 @@
 
       <!-- Quick Test Accounts -->
       <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 0.85rem; margin-bottom: 1.5rem;">
-        <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
+        <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom:0.25rem;">
           Select Demo Student to Test:
         </div>
+        <div style="font-size: 0.74rem; color: var(--accent-cyan); margin-bottom:0.5rem;">
+          Password = First 4 letters of name in CAPITAL
+        </div>
         <div class="demo-students-grid">
-          <button type="button" class="student-quick-btn" onclick="fillStudent('101', 'student123')">
+          <button type="button" class="student-quick-btn" onclick="fillStudent('101', 'AARA')">
             <strong>#101 Aarav</strong>
-            <span>Avg: 84.33% (Pass)</span>
+            <span>Pass: <code>AARA</code></span>
           </button>
-          <button type="button" class="student-quick-btn" onclick="fillStudent('108', 'student123')">
+          <button type="button" class="student-quick-btn" onclick="fillStudent('108', 'SNEH')">
             <strong>#108 Sneha</strong>
-            <span>Avg: 94.33% (Top Rank)</span>
+            <span>Pass: <code>SNEH</code></span>
           </button>
-          <button type="button" class="student-quick-btn" onclick="fillStudent('104', 'student123')">
+          <button type="button" class="student-quick-btn" onclick="fillStudent('104', 'PRIY')">
             <strong>#104 Priya</strong>
-            <span style="color:#fb7185;">Avg: 37.67% (Fail)</span>
+            <span style="color:#fb7185;">Pass: <code>PRIY</code></span>
           </button>
-          <button type="button" class="student-quick-btn" onclick="fillStudent('109', 'student123')">
+          <button type="button" class="student-quick-btn" onclick="fillStudent('109', 'KARA')">
             <strong>#109 Karan</strong>
-            <span style="color:#fb7185;">Avg: 35.67% (Fail)</span>
+            <span style="color:#fb7185;">Pass: <code>KARA</code></span>
           </button>
         </div>
       </div>
@@ -160,13 +163,17 @@
 
       <form id="student-login-form">
         <div class="form-group">
-          <label class="form-label" for="student-identifier">Student ID or Registered Email</label>
-          <input type="text" id="student-identifier" class="form-control" placeholder="e.g. 101 or aarav@student.edu" required autocomplete="username">
+          <label class="form-label" for="student-identifier">Student ID</label>
+          <input type="text" id="student-identifier" class="form-control" placeholder="e.g. 101, 102, 104" required autocomplete="username">
+          <span style="font-size: 0.74rem; color: var(--text-dim); margin-top: 0.2rem;">Or enter your student email address</span>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="student-password">Password</label>
-          <input type="password" id="student-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+          <label class="form-label" for="student-password">Password (First 4 Letters of Name in CAPITAL)</label>
+          <input type="password" id="student-password" class="form-control" placeholder="e.g. AARA, DIYA, PRIY, SNEH" style="font-family: var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;" required autocomplete="current-password">
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
+            💡 Format: First 4 letters of your name in <strong>CAPITALS</strong> (e.g. Aarav → <code>AARA</code>, Diya → <code>DIYA</code>, Sneha → <code>SNEH</code>).
+          </div>
         </div>
 
         <button type="submit" id="btn-submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;">
@@ -187,17 +194,30 @@
     const alertBox = document.getElementById('auth-alert');
     const btnSubmit = document.getElementById('btn-submit');
 
+    const samplePasswords = {
+      '101': 'AARA',
+      '102': 'DIYA',
+      '103': 'RAHU',
+      '104': 'PRIY',
+      '105': 'ARJU',
+      '106': 'ANAN',
+      '107': 'ROHA',
+      '108': 'SNEH',
+      '109': 'KARA',
+      '110': 'MEER'
+    };
+
     window.fillStudent = function (identifier, pass) {
       document.getElementById('student-identifier').value = identifier;
       document.getElementById('student-password').value = pass;
-      window.showToast(`Selected Student #${identifier}`, 'info');
+      window.showToast(`Selected Student #${identifier} (Password: ${pass})`, 'info');
     };
 
     // Check query params for demo flag
     const urlParams = new URLSearchParams(window.location.search);
     const demoId = urlParams.get('demo');
     if (demoId) {
-      fillStudent(demoId, 'student123');
+      fillStudent(demoId, samplePasswords[demoId] || 'AARA');
     }
 
     form.addEventListener('submit', async (e) => {

@@ -55,6 +55,20 @@ function initDatabase() {
   `);
 
   seedInitialData();
+  updateStudentPasswordsToFirst4Caps();
+}
+
+// Ensure all student passwords follow rule: first 4 letters of name in CAPITAL
+function updateStudentPasswordsToFirst4Caps() {
+  const students = db.prepare("SELECT id, name FROM users WHERE role = 'student'").all();
+  const updateStmt = db.prepare('UPDATE users SET password_hash = ? WHERE id = ?');
+  for (const s of students) {
+    const rawPass = (s.name || '').trim().substring(0, 4).toUpperCase();
+    if (rawPass) {
+      const hash = bcrypt.hashSync(rawPass, 10);
+      updateStmt.run(hash, s.id);
+    }
+  }
 }
 
 // Seed the 10 students and default teacher from README
@@ -67,7 +81,6 @@ function seedInitialData() {
   console.log('Seeding initial data from README dataset...');
 
   const defaultTeacherPassword = bcrypt.hashSync('teacher123', 10);
-  const defaultStudentPassword = bcrypt.hashSync('student123', 10);
 
   // 1. Insert default teacher
   const insertUser = db.prepare(`
@@ -120,7 +133,9 @@ function seedInitialData() {
 
   for (const s of sampleStudents) {
     const email = `${s.name.toLowerCase()}@student.edu`;
-    insertUser.run(email, defaultStudentPassword, 'student', s.id, s.name);
+    const studentPass = s.name.substring(0, 4).toUpperCase();
+    const studentPassHash = bcrypt.hashSync(studentPass, 10);
+    insertUser.run(email, studentPassHash, 'student', s.id, s.name);
 
     insertMarks.run(s.id, 'Mathematics', s.math, teacherId);
     insertMarks.run(s.id, 'Science', s.science, teacherId);
@@ -168,7 +183,8 @@ function ensureStudentUser(studentId, studentName, creatorId) {
   }
   const cleanName = studentName || `Student ${studentId}`;
   const email = `${cleanName.toLowerCase().replace(/[^a-z0-9]/g, '')}_${studentId}@student.edu`;
-  const defaultStudentPassword = bcrypt.hashSync('student123', 10);
+  const studentPass = cleanName.trim().substring(0, 4).toUpperCase();
+  const defaultStudentPassword = bcrypt.hashSync(studentPass, 10);
   const result = db.prepare(`
     INSERT INTO users (email, password_hash, role, student_id, name)
     VALUES (?, ?, 'student', ?, ?)

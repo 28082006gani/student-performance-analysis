@@ -86,14 +86,15 @@ The application will start on: **`http://localhost:3000`**
 
 For easy grading and evaluation, both login pages include **1-Click Auto-fill buttons**:
 
-| Role | Name / Student ID | Email / Identifier | Password | Academic Status |
+| Role | Name / Student ID | Email / Identifier | Password | Password Rule |
 | :--- | :--- | :--- | :--- | :--- |
-| **Teacher** | Prof. Sarah Vance | `teacher@portal.edu` | `teacher123` | Full Access & Analytics |
-| **Student** | #101 Aarav | `101` or `aarav@student.edu` | `student123` | **Passed** (Avg: 84.33%) |
-| **Student** | #102 Diya | `102` or `diya@student.edu` | `student123` | **Passed** (Avg: 91.67%) |
-| **Student** | #104 Priya | `104` or `priya@student.edu` | `student123` | **Failed** (Avg: 37.67%, Math: 35, Eng: 38) |
-| **Student** | #108 Sneha | `108` or `sneha@student.edu` | `student123` | **Passed / Top Rank** (Avg: 94.33%, Score: 96) |
-| **Student** | #109 Karan | `109` or `karan@student.edu` | `student123` | **Failed** (Avg: 35.67%, Math: 30, Sci: 35) |
+| **Teacher** | Prof. Sarah Vance | `teacher@portal.edu` | `teacher123` | Faculty Account |
+| **Student** | #101 Aarav | `101` or `aarav@student.edu` | `AARA` | 1st 4 letters of name in CAPITAL |
+| **Student** | #102 Diya | `102` or `diya@student.edu` | `DIYA` | 1st 4 letters of name in CAPITAL |
+| **Student** | #103 Rahul | `103` or `rahul@student.edu` | `RAHU` | 1st 4 letters of name in CAPITAL |
+| **Student** | #104 Priya | `104` or `priya@student.edu` | `PRIY` | 1st 4 letters of name in CAPITAL |
+| **Student** | #108 Sneha | `108` or `sneha@student.edu` | `SNEH` | 1st 4 letters of name in CAPITAL |
+| **Student** | #109 Karan | `109` or `karan@student.edu` | `KARA` | 1st 4 letters of name in CAPITAL |
 
 ---
 

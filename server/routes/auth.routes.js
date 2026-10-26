@@ -73,9 +73,11 @@ router.post('/student/login', (req, res) => {
     });
   }
 
-  const isMatch = bcrypt.compareSync(password, user.password_hash);
+  const cleanPassword = password ? password.toString().trim() : '';
+  const isMatch = bcrypt.compareSync(cleanPassword, user.password_hash) || 
+                  bcrypt.compareSync(cleanPassword.toUpperCase(), user.password_hash);
   if (!isMatch) {
-    return res.status(401).json({ success: false, error: 'Invalid credentials. Incorrect password.' });
+    return res.status(401).json({ success: false, error: 'Invalid credentials. Password is the first 4 letters of your name in CAPITAL (e.g. AARA).' });
   }
 
   const token = generateToken(user);
@@ -125,7 +127,7 @@ router.get('/demo-users', (req, res) => {
       studentId: s.student_id,
       name: s.name,
       email: s.email,
-      password: 'student123'
+      password: (s.name || '').substring(0, 4).toUpperCase()
     }))
   });
 });
