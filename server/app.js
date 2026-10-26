@@ -23,12 +23,16 @@ app.use('/api', require('./routes/attendance.routes'));
 app.use('/api', require('./routes/analytics.routes'));
 
 // Clean URL routing for client-side pages
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(publicPath, 'login.html'));
+});
+
 app.get('/teacher/login', (req, res) => {
-  res.sendFile(path.join(publicPath, 'teacher-login.html'));
+  res.redirect('/login?role=teacher');
 });
 
 app.get('/student/login', (req, res) => {
-  res.sendFile(path.join(publicPath, 'student-login.html'));
+  res.redirect('/login?role=student');
 });
 
 app.get('/teacher/dashboard', (req, res) => {

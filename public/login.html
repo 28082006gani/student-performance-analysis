@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unified Portal Authentication | Student Performance Portal</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <style>
+    .auth-wrapper {
+      min-height: calc(100vh - 170px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 460px;
+      padding: 2.25rem 2rem;
+      border-radius: 18px;
+      background: rgba(14, 20, 32, 0.88);
+      border: 1px solid var(--border-card);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(0, 240, 255, 0.12);
+      transition: all var(--transition-smooth);
+    }
+
+    .role-segmented-control {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 0.3rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      margin-bottom: 1.75rem;
+    }
+
+    .role-tab-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.65rem 0.75rem;
+      font-family: var(--font-main);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .role-tab-btn:hover {
+      color: #fff;
+    }
+
+    .role-tab-btn.active.tab-student {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(14, 165, 233, 0.25));
+      color: #00f0ff;
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      box-shadow: 0 4px 15px rgba(0, 240, 255, 0.15);
+    }
+
+    .role-tab-btn.active.tab-teacher {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(109, 40, 217, 0.25));
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .auth-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: 0.85rem;
+      transition: all var(--transition-smooth);
+    }
+
+    .auth-icon.icon-student {
+      background: rgba(0, 240, 255, 0.15);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+    }
+
+    .auth-icon.icon-teacher {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--accent-violet);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+    }
+
+    .auth-form-panel {
+      display: none;
+    }
+
+    .auth-form-panel.active {
+      display: block;
+      animation: fadeInForm 0.2s ease forwards;
+    }
+
+    @keyframes fadeInForm {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="app-navbar">
+    <div class="container nav-content">
+      <a href="/" class="brand-logo">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h1>Student Analytics Portal</h1>
+          <p>Unified Authentication</p>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <!-- Torch Controls -->
+        <div class="torch-toolbar">
+          <button class="torch-mode-btn btn-mode-cyan active" data-mode="cyan" title="Cyan"></button>
+          <button class="torch-mode-btn btn-mode-emerald" data-mode="emerald" title="Emerald"></button>
+          <button class="torch-mode-btn btn-mode-violet" data-mode="violet" title="Violet"></button>
+          <button class="torch-mode-btn btn-mode-amber" data-mode="amber" title="Amber"></button>
+          <button class="torch-toggle-btn" title="Toggle Spotlight Beam (Alt+F)">
+            🔦 <span style="font-size:0.75rem;">Beam</span>
+          </button>
+        </div>
+
+        <a href="/" class="btn btn-outline btn-sm">← Back to Home</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container auth-wrapper">
+    <div class="torch-target auth-card">
+
+      <!-- Segmented Role Switcher: Student vs Teacher -->
+      <div class="role-segmented-control">
+        <button type="button" id="tab-btn-student" class="role-tab-btn tab-student active" onclick="switchRole('student')">
+          🎓 Student Login
+        </button>
+        <button type="button" id="tab-btn-teacher" class="role-tab-btn tab-teacher" onclick="switchRole('teacher')">
+          👨‍🏫 Faculty Login
+        </button>
+      </div>
+
+      <!-- Header -->
+      <div class="auth-header">
+        <div id="auth-icon" class="auth-icon icon-student">🎓</div>
+        <h1 id="auth-heading" style="font-size: 1.55rem; margin-bottom: 0.35rem;">Student Sign In</h1>
+        <p id="auth-subheading" style="color: var(--text-muted); font-size: 0.86rem;">
+          Enter your Student ID to access your personalized academic record.
+        </p>
+      </div>
+
+      <!-- Error / Role Alert Box -->
+      <div id="auth-alert" style="display:none; padding: 0.85rem; border-radius: 10px; font-size: 0.86rem; margin-bottom: 1.25rem;"></div>
+
+      <!-- ==============================================
+           FORM 1: STUDENT LOGIN
+           ============================================== -->
+      <form id="student-login-form" class="auth-form-panel active">
+        <div class="form-group">
+          <label class="form-label" for="student-identifier">Student ID</label>
+          <input type="text" id="student-identifier" class="form-control" placeholder="Enter Student ID" required autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="student-password">Password</label>
+          <input type="password" id="student-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" id="btn-submit-student" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;">
+          Sign In to Student Dashboard
+        </button>
+      </form>
+
+      <!-- ==============================================
+           FORM 2: TEACHER LOGIN
+           ============================================== -->
+      <form id="teacher-login-form" class="auth-form-panel">
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.85rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 0.78rem; color: var(--text-muted);">Quick faculty demo:</span>
+          <button type="button" id="btn-autofill-teacher" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+            ⚡ Auto-fill Teacher
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="teacher-email">Faculty Email Address</label>
+          <input type="email" id="teacher-email" class="form-control" placeholder="teacher@portal.edu" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="teacher-password">Password</label>
+          <input type="password" id="teacher-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" id="btn-submit-teacher" class="btn btn-violet btn-lg" style="width: 100%; margin-top: 0.5rem;">
+          Sign In to Teacher Dashboard
+        </button>
+      </form>
+
+      <!-- Footer switch helper -->
+      <div style="margin-top: 1.5rem; text-align: center; font-size: 0.82rem; color: var(--text-dim);">
+        <span id="footer-helper-text">Switch accounts?</span>
+        <button type="button" id="btn-toggle-role" style="background:none; border:none; color:var(--accent-cyan); font-weight:600; cursor:pointer; font-size:inherit; margin-left:0.35rem;" onclick="toggleRole()">
+          Switch to Teacher Login →
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/flashlight.js"></script>
+  <script src="/js/dot-matrix-shader.js"></script>
+  <script src="/js/api.js"></script>
+  <script>
+    let currentRole = 'student';
+
+    const tabStudent = document.getElementById('tab-btn-student');
+    const tabTeacher = document.getElementById('tab-btn-teacher');
+    const formStudent = document.getElementById('student-login-form');
+    const formTeacher = document.getElementById('teacher-login-form');
+    const authIcon = document.getElementById('auth-icon');
+    const authHeading = document.getElementById('auth-heading');
+    const authSubheading = document.getElementById('auth-subheading');
+    const alertBox = document.getElementById('auth-alert');
+    const btnToggle = document.getElementById('btn-toggle-role');
+
+    window.switchRole = function(role) {
+      currentRole = role;
+      alertBox.style.display = 'none';
+
+      if (role === 'student') {
+        tabStudent.classList.add('active');
+        tabTeacher.classList.remove('active');
+        formStudent.classList.add('active');
+        formTeacher.classList.remove('active');
+
+        authIcon.className = 'auth-icon icon-student';
+        authIcon.textContent = '🎓';
+        authHeading.textContent = 'Student Sign In';
+        authSubheading.textContent = 'Enter your Student ID to access your personalized academic record.';
+        btnToggle.textContent = 'Switch to Faculty Login →';
+        btnToggle.style.color = 'var(--accent-violet)';
+      } else {
+        tabTeacher.classList.add('active');
+        tabStudent.classList.remove('active');
+        formTeacher.classList.add('active');
+        formStudent.classList.remove('active');
+
+        authIcon.className = 'auth-icon icon-teacher';
+        authIcon.textContent = '👨‍🏫';
+        authHeading.textContent = 'Faculty Sign In';
+        authSubheading.textContent = 'Enter faculty credentials to manage class marks, attendance, and analytics.';
+        btnToggle.textContent = 'Switch to Student Login →';
+        btnToggle.style.color = 'var(--accent-cyan)';
+      }
+    };
+
+    window.toggleRole = function() {
+      switchRole(currentRole === 'student' ? 'teacher' : 'student');
+    };
+
+    // Auto-fill teacher
+    document.getElementById('btn-autofill-teacher').addEventListener('click', () => {
+      document.getElementById('teacher-email').value = 'teacher@portal.edu';
+      document.getElementById('teacher-password').value = 'teacher123';
+      window.showToast('Demo faculty credentials populated', 'info');
+    });
+
+    // Check URL query parameters: ?role=teacher or ?role=student
+    const urlParams = new URLSearchParams(window.location.search);
+    const roleParam = urlParams.get('role');
+    if (roleParam === 'teacher') {
+      switchRole('teacher');
+    } else {
+      switchRole('student');
+    }
+
+    if (urlParams.get('demo') === 'teacher') {
+      switchRole('teacher');
+      document.getElementById('btn-autofill-teacher').click();
+    }
+
+    // Submit: Student Login
+    formStudent.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const identifier = document.getElementById('student-identifier').value.trim();
+      const password = document.getElementById('student-password').value;
+      const btn = document.getElementById('btn-submit-student');
+
+      btn.disabled = true;
+      btn.innerHTML = 'Authenticating...';
+
+      try {
+        const res = await fetch('/api/auth/student/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alertBox.style.display = 'block';
+          alertBox.style.background = 'rgba(244, 63, 94, 0.15)';
+          alertBox.style.border = '1px solid #f43f5e';
+          alertBox.style.color = '#fb7185';
+          alertBox.textContent = data.error || 'Authentication failed.';
+          btn.disabled = false;
+          btn.innerHTML = 'Sign In to Student Dashboard';
+          return;
+        }
+
+        api.setToken(data.token);
+        api.setUser(data.user);
+        window.showToast('Welcome, ' + data.user.name + '!', 'success');
+
+        setTimeout(() => {
+          window.location.href = '/student/dashboard';
+        }, 500);
+
+      } catch (err) {
+        alertBox.style.display = 'block';
+        alertBox.style.background = 'rgba(244, 63, 94, 0.15)';
+        alertBox.style.border = '1px solid #f43f5e';
+        alertBox.style.color = '#fb7185';
+        alertBox.textContent = err.message || 'Server connection error.';
+        btn.disabled = false;
+        btn.innerHTML = 'Sign In to Student Dashboard';
+      }
+    });
+
+    // Submit: Teacher Login
+    formTeacher.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const email = document.getElementById('teacher-email').value.trim();
+      const password = document.getElementById('teacher-password').value;
+      const btn = document.getElementById('btn-submit-teacher');
+
+      btn.disabled = true;
+      btn.innerHTML = 'Authenticating...';
+
+      try {
+        const res = await fetch('/api/auth/teacher/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alertBox.style.display = 'block';
+          alertBox.style.background = 'rgba(244, 63, 94, 0.15)';
+          alertBox.style.border = '1px solid #f43f5e';
+          alertBox.style.color = '#fb7185';
+          alertBox.textContent = data.error || 'Authentication failed.';
+          btn.disabled = false;
+          btn.innerHTML = 'Sign In to Teacher Dashboard';
+          return;
+        }
+
+        api.setToken(data.token);
+        api.setUser(data.user);
+        window.showToast('Welcome, ' + data.user.name + '!', 'success');
+
+        setTimeout(() => {
+          window.location.href = '/teacher/dashboard';
+        }, 500);
+
+      } catch (err) {
+        alertBox.style.display = 'block';
+        alertBox.style.background = 'rgba(244, 63, 94, 0.15)';
+        alertBox.style.border = '1px solid #f43f5e';
+        alertBox.style.color = '#fb7185';
+        alertBox.textContent = err.message || 'Server connection error.';
+        btn.disabled = false;
+        btn.innerHTML = 'Sign In to Teacher Dashboard';
+      }
+    });
+  </script>
+</body>
+</html>
