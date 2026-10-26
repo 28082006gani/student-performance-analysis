@@ -77,7 +77,7 @@ router.post('/student/login', (req, res) => {
   const isMatch = bcrypt.compareSync(cleanPassword, user.password_hash) || 
                   bcrypt.compareSync(cleanPassword.toUpperCase(), user.password_hash);
   if (!isMatch) {
-    return res.status(401).json({ success: false, error: 'Invalid credentials. Password is the first 4 letters of your name in CAPITAL (e.g. AARA).' });
+    return res.status(401).json({ success: false, error: 'Invalid credentials. Incorrect password.' });
   }
 
   const token = generateToken(user);
