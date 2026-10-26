@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Authentication | Student Performance Portal</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <style>
+    .auth-wrapper {
+      min-height: calc(100vh - 180px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1rem;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 480px;
+      padding: 2.5rem 2rem;
+      border-top: 3px solid var(--accent-cyan);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .auth-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: rgba(0, 240, 255, 0.15);
+      color: var(--accent-cyan);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+    }
+
+    .role-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      background: rgba(0, 240, 255, 0.15);
+      color: #67e8f9;
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    .demo-students-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.45rem;
+      margin-top: 0.5rem;
+    }
+
+    .student-quick-btn {
+      padding: 0.4rem 0.6rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      transition: all var(--transition-fast);
+    }
+
+    .student-quick-btn:hover {
+      background: rgba(0, 240, 255, 0.1);
+      border-color: var(--accent-cyan);
+      color: #fff;
+    }
+
+    .student-quick-btn strong {
+      color: var(--accent-cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="app-navbar">
+    <div class="container nav-content">
+      <a href="/" class="brand-logo">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h1>Student Analytics Portal</h1>
+          <p>Student Portal</p>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <!-- Torch Controls -->
+        <div class="torch-toolbar">
+          <button class="torch-mode-btn btn-mode-cyan active" data-mode="cyan" title="Cyan"></button>
+          <button class="torch-mode-btn btn-mode-emerald" data-mode="emerald" title="Emerald"></button>
+          <button class="torch-mode-btn btn-mode-violet" data-mode="violet" title="Violet"></button>
+          <button class="torch-mode-btn btn-mode-amber" data-mode="amber" title="Amber"></button>
+          <button class="torch-toggle-btn" title="Toggle Spotlight Beam (Alt+F)">
+            🔦 <span style="font-size:0.75rem;">Beam</span>
+          </button>
+        </div>
+
+        <a href="/teacher/login" class="btn btn-outline btn-sm">Switch to Teacher Portal</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container auth-wrapper">
+    <div class="torch-target auth-card">
+      <div class="auth-header">
+        <div class="auth-icon">🎓</div>
+        <div class="role-badge-pill">Student Portal</div>
+        <h1 style="font-size: 1.7rem; margin-bottom: 0.35rem;">Student Sign In</h1>
+        <p style="color: var(--text-muted); font-size: 0.88rem;">
+          Enter your Student ID (or email) to access your personalized academic record.
+        </p>
+      </div>
+
+      <!-- Quick Test Accounts -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 0.85rem; margin-bottom: 1.5rem;">
+        <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
+          Select Demo Student to Test:
+        </div>
+        <div class="demo-students-grid">
+          <button type="button" class="student-quick-btn" onclick="fillStudent('101', 'student123')">
+            <strong>#101 Aarav</strong>
+            <span>Avg: 84.33% (Pass)</span>
+          </button>
+          <button type="button" class="student-quick-btn" onclick="fillStudent('108', 'student123')">
+            <strong>#108 Sneha</strong>
+            <span>Avg: 94.33% (Top Rank)</span>
+          </button>
+          <button type="button" class="student-quick-btn" onclick="fillStudent('104', 'student123')">
+            <strong>#104 Priya</strong>
+            <span style="color:#fb7185;">Avg: 37.67% (Fail)</span>
+          </button>
+          <button type="button" class="student-quick-btn" onclick="fillStudent('109', 'student123')">
+            <strong>#109 Karan</strong>
+            <span style="color:#fb7185;">Avg: 35.67% (Fail)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error / Role Alert Box -->
+      <div id="auth-alert" style="display:none; padding: 0.85rem; border-radius: 10px; font-size: 0.86rem; margin-bottom: 1.25rem;"></div>
+
+      <form id="student-login-form">
+        <div class="form-group">
+          <label class="form-label" for="student-identifier">Student ID or Registered Email</label>
+          <input type="text" id="student-identifier" class="form-control" placeholder="e.g. 101 or aarav@student.edu" required autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="student-password">Password</label>
+          <input type="password" id="student-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" id="btn-submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;">
+          Sign In to Student Dashboard
+        </button>
+      </form>
+
+      <div style="margin-top: 1.5rem; text-align: center; font-size: 0.84rem; color: var(--text-dim);">
+        Are you a faculty member? <a href="/teacher/login" style="color: var(--accent-violet); text-decoration: none; font-weight: 600;">Go to Teacher Portal →</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/flashlight.js"></script>
+  <script src="/js/api.js"></script>
+  <script>
+    const form = document.getElementById('student-login-form');
+    const alertBox = document.getElementById('auth-alert');
+    const btnSubmit = document.getElementById('btn-submit');
+
+    window.fillStudent = function (identifier, pass) {
+      document.getElementById('student-identifier').value = identifier;
+      document.getElementById('student-password').value = pass;
+      window.showToast(`Selected Student #${identifier}`, 'info');
+    };
+
+    // Check query params for demo flag
+    const urlParams = new URLSearchParams(window.location.search);
+    const demoId = urlParams.get('demo');
+    if (demoId) {
+      fillStudent(demoId, 'student123');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const identifier = document.getElementById('student-identifier').value.trim();
+      const password = document.getElementById('student-password').value;
+
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = 'Authenticating...';
+
+      try {
+        const res = await fetch('/api/auth/student/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          // If teacher tried to log in through student portal
+          if (data.roleMismatch) {
+            alertBox.style.display = 'block';
+            alertBox.style.background = 'rgba(245, 158, 11, 0.15)';
+            alertBox.style.border = '1px solid #f59e0b';
+            alertBox.style.color = '#fbbf24';
+            alertBox.innerHTML = `
+              <strong>Role Access Violation:</strong> ${data.error}<br>
+              <a href="/teacher/login" class="btn btn-violet btn-sm" style="margin-top:0.6rem; display:inline-flex;">Open Teacher Portal</a>
+            `;
+          } else {
+            alertBox.style.display = 'block';
+            alertBox.style.background = 'rgba(244, 63, 94, 0.15)';
+            alertBox.style.border = '1px solid #f43f5e';
+            alertBox.style.color = '#fb7185';
+            alertBox.textContent = data.error || 'Authentication failed.';
+          }
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = 'Sign In to Student Dashboard';
+          return;
+        }
+
+        // Success
+        api.setToken(data.token);
+        api.setUser(data.user);
+        window.showToast('Welcome, ' + data.user.name + '!', 'success');
+
+        setTimeout(() => {
+          window.location.href = '/student/dashboard';
+        }, 600);
+
+      } catch (err) {
+        alertBox.style.display = 'block';
+        alertBox.style.background = 'rgba(244, 63, 94, 0.15)';
+        alertBox.style.border = '1px solid #f43f5e';
+        alertBox.style.color = '#fb7185';
+        alertBox.textContent = err.message || 'Server connection error.';
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = 'Sign In to Student Dashboard';
+      }
+    });
+  </script>
+</body>
+</html>

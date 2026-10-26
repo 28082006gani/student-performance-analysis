@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Performance Analytics Portal | Flashlite UI</title>
+  <meta name="description" content="Next-generation student performance analysis and academic tracking system featuring role-segregated portals, real-time Excel integration, and luminous flashlight UI.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <style>
+    .hero-section {
+      padding: 5.5rem 0 3.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+    }
+
+    .hero-title {
+      font-size: clamp(2.3rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #00f0ff 0%, #a78bfa 50%, #f43f5e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .portal-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0 4rem;
+    }
+
+    .portal-card {
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      text-align: left;
+    }
+
+    .portal-icon-wrapper {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .portal-feature-list {
+      list-style: none;
+      margin: 1.5rem 0 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      flex: 1;
+    }
+
+    .portal-feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+    }
+
+    .portal-feature-list li span.bullet {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 6px var(--accent-cyan);
+    }
+
+    .architecture-box {
+      padding: 2rem;
+      margin: 4rem 0;
+      border-radius: 18px;
+    }
+
+    .arch-flow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+
+    .flow-node {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      flex: 1;
+      min-width: 170px;
+      text-align: center;
+      font-size: 0.88rem;
+    }
+
+    .flow-node strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      color: #fff;
+    }
+
+    .flow-arrow {
+      color: var(--text-dim);
+      font-size: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="app-navbar">
+    <div class="container nav-content">
+      <a href="/" class="brand-logo">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h1>Student Analytics Portal</h1>
+          <p>Flashlite Architecture</p>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <!-- Torch Color Modes Toolbar -->
+        <div class="torch-toolbar" title="Customize Flashlight Spotlight Beam">
+          <button class="torch-mode-btn btn-mode-cyan active" data-mode="cyan" title="Cyber Cyan Beam"></button>
+          <button class="torch-mode-btn btn-mode-emerald" data-mode="emerald" title="Bio Emerald Beam"></button>
+          <button class="torch-mode-btn btn-mode-violet" data-mode="violet" title="Neon Violet Beam"></button>
+          <button class="torch-mode-btn btn-mode-amber" data-mode="amber" title="Solar Amber Beam"></button>
+          <button class="torch-toggle-btn" title="Toggle Spotlight Beam (Alt+F)">
+            🔦 <span style="font-size:0.75rem;">Beam</span>
+          </button>
+        </div>
+
+        <a href="/teacher/login" class="btn btn-secondary btn-sm">Faculty Login</a>
+        <a href="/student/login" class="btn btn-primary btn-sm">Student Login</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-badge">
+        <span>⚡</span> Architecture-Enforced Separate Role Portals
+      </div>
+      <h1 class="hero-title">
+        Academic Performance<br>
+        <span>Illuminated with Precision.</span>
+      </h1>
+      <p class="hero-desc">
+        A fullstack analytics platform powered by Node.js, SQLite, and dynamic Flashlite UI. Real-time Excel data synchronization, role-enforced access security, and statistical insight generation.
+      </p>
+
+      <!-- Fast Demo Credentials Quick Picker -->
+      <div class="demo-banner torch-target" style="max-width: 860px; margin: 0 auto 2.5rem;">
+        <div>
+          <strong style="color: var(--accent-cyan); display:block; margin-bottom: 0.2rem;">🚀 Quick Demo Test Logins:</strong>
+          <span style="color: var(--text-muted); font-size: 0.8rem;">Click any role to test immediate prefill and role enforcement</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <a href="/teacher/login?demo=teacher" class="demo-chip">👨‍🏫 Teacher (Prof. Vance)</a>
+          <a href="/student/login?demo=101" class="demo-chip">🎓 Aarav (#101 - Pass)</a>
+          <a href="/student/login?demo=104" class="demo-chip">⚠️ Priya (#104 - Fail)</a>
+          <a href="/student/login?demo=108" class="demo-chip">🌟 Sneha (#108 - Top Rank)</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Role Gateways: Teacher vs Student Portals -->
+    <section class="portal-cards-grid">
+      <!-- Teacher Portal Card -->
+      <div class="torch-target portal-card" style="border-top: 3px solid var(--accent-violet);">
+        <div class="portal-icon-wrapper" style="background: rgba(139, 92, 246, 0.15); color: var(--accent-violet);">
+          👨‍🏫
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+          <h2 style="font-size: 1.6rem;">Teacher Portal</h2>
+          <span class="badge badge-teacher">Teachers Only</span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.92rem;">
+          Faculty control center for academic evaluations, bulk file ingestion, and comprehensive class analysis.
+        </p>
+
+        <ul class="portal-feature-list">
+          <li><span class="bullet" style="background:var(--accent-violet);"></span> Upload marks via manual form or Excel/CSV spreadsheet</li>
+          <li><span class="bullet" style="background:var(--accent-violet);"></span> Automatic pass/fail calculation (Criterion: ≥ 40 in all subjects)</li>
+          <li><span class="bullet" style="background:var(--accent-violet);"></span> Class performance charts (Subject averages, pass distribution)</li>
+          <li><span class="bullet" style="background:var(--accent-violet);"></span> Export formatted Excel workbook (.xlsx) & CSV</li>
+          <li><span class="bullet" style="background:var(--accent-violet);"></span> Attendance tracking & automated recommendation generator</li>
+        </ul>
+
+        <a href="/teacher/login" class="btn btn-violet btn-lg" style="width: 100%;">
+          Launch Teacher Portal →
+        </a>
+      </div>
+
+      <!-- Student Portal Card -->
+      <div class="torch-target portal-card" style="border-top: 3px solid var(--accent-cyan);">
+        <div class="portal-icon-wrapper" style="background: rgba(0, 240, 255, 0.15); color: var(--accent-cyan);">
+          🎓
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+          <h2 style="font-size: 1.6rem;">Student Portal</h2>
+          <span class="badge badge-student">Students Only</span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.92rem;">
+          Strictly segregated, read-only academic portal for individual students to inspect their grades safely.
+        </p>
+
+        <ul class="portal-feature-list">
+          <li><span class="bullet"></span> View own subject marks (Strict backend ID isolation)</li>
+          <li><span class="bullet"></span> Read-only access — zero upload or modification rights</li>
+          <li><span class="bullet"></span> Personal score breakdown & pass/fail status</li>
+          <li><span class="bullet"></span> Radar & benchmark comparison against class average</li>
+          <li><span class="bullet"></span> Personal attendance percentage & targeted study advice</li>
+        </ul>
+
+        <a href="/student/login" class="btn btn-primary btn-lg" style="width: 100%;">
+          Launch Student Portal →
+        </a>
+      </div>
+    </section>
+
+    <!-- Architecture Rules Visualizer -->
+    <section class="torch-target architecture-box">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+          <h3 style="font-size: 1.35rem; margin-bottom: 0.35rem;">System Architecture Verification</h3>
+          <p style="color: var(--text-muted); font-size: 0.88rem;">
+            Designed strictly to specifications outlined in <code>Student_Portal_Architecture.pdf</code> & <code>README.pdf</code>.
+          </p>
+        </div>
+        <span class="badge badge-pass">✓ Security Enforced</span>
+      </div>
+
+      <div class="arch-flow">
+        <div class="flow-node">
+          <strong style="color:var(--accent-violet);">Teacher Login</strong>
+          <span>Teachers only</span>
+        </div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-node">
+          <strong>Auth & Role Check</strong>
+          <span>JWT + DB Verification</span>
+        </div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-node">
+          <strong style="color:var(--accent-cyan);">Backend API</strong>
+          <span>0-100 Validation, Filter by ID</span>
+        </div>
+        <div class="flow-arrow">➔</div>
+        <div class="flow-node">
+          <strong style="color:var(--accent-emerald);">Excel & Database</strong>
+          <span>SQLite + .XLSX Export</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="portal-footer">
+    <div class="container">
+      <div class="footer-links">
+        <a href="/teacher/login">Teacher Login</a>
+        <a href="/student/login">Student Login</a>
+        <a href="javascript:void(0)" onclick="window.toggleFlashlight()">Spotlight Controls</a>
+      </div>
+      <p>© 2026 Student Performance Analysis Portal. Crafted with Flashlite UI.</p>
+    </div>
+  </footer>
+
+  <script src="/js/flashlight.js"></script>
+  <script src="/js/api.js"></script>
+</body>
+</html>

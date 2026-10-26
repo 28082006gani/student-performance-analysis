@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Academic Portal | Performance Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    .student-header {
+      padding: 2.5rem 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .profile-card {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .student-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(139, 92, 246, 0.25));
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+    }
+
+    .result-banner {
+      padding: 1.5rem 2rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .subject-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .subject-card {
+      padding: 1.6rem;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 1rem 0 0.5rem;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .split-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="app-navbar">
+    <div class="container nav-content">
+      <a href="/" class="brand-logo">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h1>Student Analytics Portal</h1>
+          <p>Academic Record</p>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <!-- Torch Controls -->
+        <div class="torch-toolbar">
+          <button class="torch-mode-btn btn-mode-cyan active" data-mode="cyan" title="Cyan"></button>
+          <button class="torch-mode-btn btn-mode-emerald" data-mode="emerald" title="Emerald"></button>
+          <button class="torch-mode-btn btn-mode-violet" data-mode="violet" title="Violet"></button>
+          <button class="torch-mode-btn btn-mode-amber" data-mode="amber" title="Amber"></button>
+          <button class="torch-toggle-btn" title="Toggle Spotlight Beam (Alt+F)">
+            🔦 <span style="font-size:0.75rem;">Beam</span>
+          </button>
+        </div>
+
+        <button id="btn-student-logout" class="btn btn-outline btn-sm">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Student Header -->
+    <div class="student-header">
+      <div class="profile-card">
+        <div class="student-avatar">🎓</div>
+        <div>
+          <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;">
+            <h1 id="student-name-display" style="font-size: 1.8rem;">Student Dashboard</h1>
+            <span id="student-id-badge" class="badge badge-student">ID: --</span>
+          </div>
+          <p id="student-email-display" style="color: var(--text-muted); font-size: 0.88rem;">student@portal.edu</p>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:0.65rem;">
+        <span class="badge badge-subtle">🔒 Isolated Read-Only Session</span>
+        <button onclick="window.print()" class="btn btn-secondary btn-sm" title="Print Academic Record">
+          🖨️ Print Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Pass / Fail Overall Standing Banner -->
+    <div id="result-status-banner" class="torch-target result-banner">
+      <!-- Dynamically filled -->
+    </div>
+
+    <!-- Core Subject Cards (Math, Science, English) -->
+    <div id="subject-cards-container" class="subject-cards-grid">
+      <!-- Dynamically populated -->
+    </div>
+
+    <!-- Visual Benchmarks & Attendance -->
+    <div class="split-grid">
+      <!-- Personal vs Class Benchmark Chart -->
+      <div class="torch-target chart-card">
+        <div class="chart-header">
+          <div>
+            <h2 class="chart-title">Subject Performance Benchmark</h2>
+            <p style="font-size:0.8rem; color:var(--text-dim);">Your marks compared to class average</p>
+          </div>
+          <span class="badge badge-student">Your Standing</span>
+        </div>
+        <div class="chart-container" style="min-height: 280px;">
+          <canvas id="chart-student-benchmark"></canvas>
+        </div>
+      </div>
+
+      <!-- Personal Attendance & Stats -->
+      <div class="torch-target" style="padding: 1.6rem; border-radius: 16px;">
+        <h2 style="font-size: 1.15rem; margin-bottom: 1.25rem; display:flex; align-items:center; gap:0.5rem;">
+          📅 Attendance Summary
+        </h2>
+
+        <div style="text-align: center; padding: 1.25rem 0;">
+          <div id="att-display-pct" style="font-size: 3rem; font-family:var(--font-heading); font-weight:800; color:var(--accent-cyan); line-height:1;">
+            --%
+          </div>
+          <p id="att-display-period" style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.4rem;">
+            Semester Attendance Record
+          </p>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; margin: 1rem 0; text-align:center;">
+          <div style="background: rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:10px; padding:0.75rem;">
+            <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase;">Days Present</div>
+            <div id="att-display-present" style="font-size:1.4rem; font-weight:700; color:#fff;">--</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:10px; padding:0.75rem;">
+            <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase;">Total Days</div>
+            <div id="att-display-total" style="font-size:1.4rem; font-weight:700; color:#fff;">--</div>
+          </div>
+        </div>
+
+        <div id="att-display-notes" style="font-size:0.84rem; color:var(--text-muted); background:rgba(255,255,255,0.02); border-radius:8px; padding:0.75rem; border:1px solid var(--border-subtle);">
+          Instructor remarks will appear here.
+        </div>
+      </div>
+    </div>
+
+    <!-- Personalized Insights & Recommendations -->
+    <div class="torch-target" style="padding: 1.75rem; border-radius: 16px; margin-bottom: 3rem;">
+      <h3 style="font-size: 1.25rem; margin-bottom: 0.35rem;">Academic Analysis & Recommendations</h3>
+      <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">
+        Personalized insights tailored to your performance in Mathematics, Science, and English.
+      </p>
+
+      <div id="student-insights-container">
+        <!-- Dynamically loaded -->
+      </div>
+    </div>
+  </main>
+
+  <footer class="portal-footer">
+    <div class="container">
+      <p>© 2026 Student Performance Analytics Portal. Student Self-Service Portal.</p>
+    </div>
+  </footer>
+
+  <script src="/js/flashlight.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/student.js"></script>
+</body>
+</html>

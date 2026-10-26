@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Analytics Dashboard | Student Performance Portal</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    .dashboard-header {
+      padding: 2rem 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .welcome-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(0, 240, 255, 0.2));
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 0 16px rgba(139, 92, 246, 0.25);
+    }
+
+    .charts-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .charts-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .actions-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .search-filter-box {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex: 1;
+      max-width: 480px;
+    }
+
+    .action-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.25s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="app-navbar">
+    <div class="container nav-content">
+      <a href="/" class="brand-logo">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h1>Student Analytics Portal</h1>
+          <p>Teacher Control Center</p>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <!-- Torch Controls -->
+        <div class="torch-toolbar">
+          <button class="torch-mode-btn btn-mode-cyan" data-mode="cyan" title="Cyan"></button>
+          <button class="torch-mode-btn btn-mode-emerald" data-mode="emerald" title="Emerald"></button>
+          <button class="torch-mode-btn btn-mode-violet active" data-mode="violet" title="Violet"></button>
+          <button class="torch-mode-btn btn-mode-amber" data-mode="amber" title="Amber"></button>
+          <button class="torch-toggle-btn" title="Toggle Spotlight Beam (Alt+F)">
+            🔦 <span style="font-size:0.75rem;">Beam</span>
+          </button>
+        </div>
+
+        <button id="btn-logout" class="btn btn-outline btn-sm">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+      <div class="welcome-meta">
+        <div class="user-avatar">👨‍🏫</div>
+        <div>
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+            <h1 id="user-display-name" style="font-size: 1.6rem;">Teacher Dashboard</h1>
+            <span class="badge badge-teacher">Faculty</span>
+          </div>
+          <p id="user-display-email" style="color: var(--text-muted); font-size: 0.85rem;">teacher@portal.edu</p>
+        </div>
+      </div>
+
+      <div class="action-btn-group">
+        <button id="btn-open-add-modal" class="btn btn-violet btn-sm">
+          ➕ Enter Marks
+        </button>
+        <button id="btn-open-upload-modal" class="btn btn-secondary btn-sm">
+          📥 Import Excel / CSV
+        </button>
+        <a href="/api/marks/export/excel" id="btn-export-excel" class="btn btn-emerald btn-sm" download>
+          📊 Export Excel (.xlsx)
+        </a>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="tab-overview">
+        📊 Class Overview & KPIs
+      </button>
+      <button class="tab-btn" data-tab="tab-gradebook">
+        📋 Student Gradebook (<span id="tab-student-count">10</span>)
+      </button>
+      <button class="tab-btn" data-tab="tab-attendance">
+        📅 Attendance Tracker
+      </button>
+      <button class="tab-btn" data-tab="tab-insights">
+        💡 Academic Findings & Advice
+      </button>
+    </nav>
+
+    <!-- ==============================================
+         TAB 1: CLASS OVERVIEW & CHARTS
+         ============================================== -->
+    <section id="tab-overview" class="tab-content active">
+      <!-- KPI Stats Grid -->
+      <div class="stats-grid">
+        <!-- Card 1: Total Students -->
+        <div class="torch-target stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Total Students</span>
+            <div class="stat-icon stat-icon-cyan">👥</div>
+          </div>
+          <div id="kpi-total-students" class="stat-value">10</div>
+          <div class="stat-subtext">Active enrollment cohort</div>
+        </div>
+
+        <!-- Card 2: Overall Average -->
+        <div class="torch-target stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Overall Average</span>
+            <div class="stat-icon stat-icon-violet">📈</div>
+          </div>
+          <div id="kpi-overall-average" class="stat-value">69.73%</div>
+          <div class="stat-subtext">Across all subjects & tests</div>
+        </div>
+
+        <!-- Card 3: Pass Percentage -->
+        <div class="torch-target stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Pass Percentage</span>
+            <div class="stat-icon stat-icon-emerald">🎯</div>
+          </div>
+          <div id="kpi-pass-rate" class="stat-value">80%</div>
+          <div class="stat-subtext"><span id="kpi-passed-count">8</span> passed, <span id="kpi-failed-count">2</span> failed</div>
+        </div>
+
+        <!-- Card 4: Highest Mark -->
+        <div class="torch-target stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Top Subject Mark</span>
+            <div class="stat-icon stat-icon-cyan">🏆</div>
+          </div>
+          <div id="kpi-highest-score" class="stat-value">96</div>
+          <div id="kpi-highest-holder" class="stat-subtext">Sneha (Science)</div>
+        </div>
+
+        <!-- Card 5: Lowest Mark -->
+        <div class="torch-target stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Lowest Score</span>
+            <div class="stat-icon stat-icon-rose">⚠️</div>
+          </div>
+          <div id="kpi-lowest-score" class="stat-value">30</div>
+          <div id="kpi-lowest-holder" class="stat-subtext">Karan (Mathematics)</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <!-- Subject Performance Bar Chart -->
+        <div class="torch-target chart-card">
+          <div class="chart-header">
+            <div>
+              <h2 class="chart-title">Subject Average Marks Comparison</h2>
+              <p style="font-size:0.78rem; color:var(--text-dim);">Mathematics vs Science vs English averages</p>
+            </div>
+            <span class="badge badge-subtle">Core Subjects</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-subject-averages"></canvas>
+          </div>
+        </div>
+
+        <!-- Pass/Fail Distribution Doughnut Chart -->
+        <div class="torch-target chart-card">
+          <div class="chart-header">
+            <div>
+              <h2 class="chart-title">Pass vs Fail Outcome Distribution</h2>
+              <p style="font-size:0.78rem; color:var(--text-dim);">Rule: At least 40 in every subject to pass</p>
+            </div>
+            <span class="badge badge-subtle">Pass Criterion ≥ 40</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-pass-fail"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Rankings Bar Chart -->
+      <div class="torch-target chart-card" style="margin-bottom: 2rem;">
+        <div class="chart-header">
+          <div>
+            <h2 class="chart-title">Class Academic Leaderboard (Student Averages)</h2>
+            <p style="font-size:0.78rem; color:var(--text-dim);">Ranked from highest average score to lowest</p>
+          </div>
+          <span class="badge badge-cyan">Full Cohort</span>
+        </div>
+        <div class="chart-container" style="min-height: 320px;">
+          <canvas id="chart-student-averages"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         TAB 2: STUDENT GRADEBOOK & MARKS
+         ============================================== -->
+    <section id="tab-gradebook" class="tab-content">
+      <div class="torch-target" style="padding: 1.5rem; border-radius: 16px;">
+        <div class="actions-bar">
+          <div class="search-filter-box">
+            <input type="text" id="gradebook-search" class="form-control" placeholder="🔍 Search student name or ID...">
+            <select id="gradebook-filter" class="form-control" style="max-width: 150px;">
+              <option value="all">All Results</option>
+              <option value="Pass">Pass Only</option>
+              <option value="Fail">Fail Only</option>
+            </select>
+          </div>
+
+          <div class="action-btn-group">
+            <button id="btn-refresh-gradebook" class="btn btn-secondary btn-sm" title="Refresh Table">
+              🔄 Refresh
+            </button>
+            <a href="/api/marks/export/csv" class="btn btn-outline btn-sm" download>
+              📄 Download CSV
+            </a>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Student Name</th>
+                <th>Mathematics</th>
+                <th>Science</th>
+                <th>English</th>
+                <th>Total Marks</th>
+                <th>Average Marks</th>
+                <th>Result</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="gradebook-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         TAB 3: ATTENDANCE TRACKER
+         ============================================== -->
+    <section id="tab-attendance" class="tab-content">
+      <div class="torch-target" style="padding: 1.5rem; border-radius: 16px;">
+        <div class="actions-bar">
+          <div>
+            <h2 style="font-size: 1.2rem; margin-bottom: 0.25rem;">Cohort Attendance Registry</h2>
+            <p style="color: var(--text-muted); font-size: 0.82rem;">Record and monitor student attendance rates</p>
+          </div>
+          <button id="btn-open-attendance-modal" class="btn btn-violet btn-sm">
+            ➕ Log Attendance
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Period</th>
+                <th>Present / Total Days</th>
+                <th>Attendance Rate</th>
+                <th>Status / Notes</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         TAB 4: ACADEMIC FINDINGS & RECOMMENDATIONS
+         ============================================== -->
+    <section id="tab-insights" class="tab-content">
+      <div class="torch-target" style="padding: 1.75rem; border-radius: 16px;">
+        <div style="margin-bottom: 1.5rem;">
+          <h2 style="font-size: 1.3rem; margin-bottom: 0.35rem;">Key Findings & Automated Educational Recommendations</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem;">
+            Synthesized directly from current student marks using analytics rules defined in <code>README.pdf</code>.
+          </p>
+        </div>
+
+        <div id="insights-container">
+          <!-- Dynamically populated -->
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1.25rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: 12px;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--accent-cyan);">Architecture Alignment & Verification:</h4>
+          <ul style="list-style: circle; margin-left: 1.5rem; font-size: 0.85rem; color: var(--text-muted); display:flex; flex-direction:column; gap:0.4rem;">
+            <li><strong>Marks Validation:</strong> Checked between 0 and 100 with zero handwritten pass/fail results.</li>
+            <li><strong>Strict Pass Rule:</strong> A student must achieve ≥ 40 in Mathematics, Science, and English to qualify as 'Pass'.</li>
+            <li><strong>Data Synchronization:</strong> Changes made here reflect immediately in Excel (.xlsx) exports and student individual dashboards.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==============================================
+       MODAL 1: ADD / UPDATE STUDENT MARKS
+       ============================================== -->
+  <div id="modal-add-marks" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Record Student Marks</h3>
+        <button class="modal-close" onclick="closeModal('modal-add-marks')">&times;</button>
+      </div>
+      <form id="form-save-marks">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="input-student-id">Student ID (Numeric)</label>
+            <input type="number" id="input-student-id" class="form-control" placeholder="e.g. 111" required min="1">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-student-name">Student Full Name</label>
+            <input type="text" id="input-student-name" class="form-control" placeholder="e.g. Alex Johnson" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
+            <div class="form-group">
+              <label class="form-label" for="input-math">Mathematics (0-100)</label>
+              <input type="number" id="input-math" class="form-control" placeholder="85" min="0" max="100" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-science">Science (0-100)</label>
+              <input type="number" id="input-science" class="form-control" placeholder="90" min="0" max="100" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-english">English (0-100)</label>
+              <input type="number" id="input-english" class="form-control" placeholder="80" min="0" max="100" required>
+            </div>
+          </div>
+
+          <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 8px; padding: 0.65rem 0.85rem; font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+            ℹ️ Result (Pass / Fail) is calculated automatically based on the rule: <em>Marks in all subjects must be at least 40</em>.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-marks')">Cancel</button>
+          <button type="submit" id="btn-save-marks-submit" class="btn btn-violet">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 2: BULK EXCEL / CSV UPLOAD
+       ============================================== -->
+  <div id="modal-upload" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Bulk Import Marks Spreadsheet</h3>
+        <button class="modal-close" onclick="closeModal('modal-upload')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.25rem;">
+          Upload an Excel (<code>.xlsx</code>, <code>.xls</code>) or <code>.csv</code> spreadsheet containing columns: <strong>Student ID, Student Name, Mathematics, Science, English</strong>.
+        </p>
+
+        <div id="dropzone" class="dropzone">
+          <div class="dropzone-icon">📁</div>
+          <strong style="display:block; margin-bottom: 0.35rem; color: #fff;">Click to select file or drag & drop here</strong>
+          <span style="font-size: 0.78rem; color: var(--text-dim);">Supported: .xlsx, .xls, .csv (Max 5MB)</span>
+          <input type="file" id="file-upload-input" accept=".xlsx,.xls,.csv" style="display:none;">
+        </div>
+
+        <div id="upload-file-status" style="margin-top: 1rem; display:none; font-size:0.86rem;"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-subtle);">
+          <span style="font-size:0.8rem; color:var(--text-dim);">Need the template format?</span>
+          <a href="/api/marks/template" class="btn btn-secondary btn-sm" download>
+            📥 Download Sample Template
+          </a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-upload')">Close</button>
+        <button type="button" id="btn-process-upload" class="btn btn-primary" disabled>Process Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 3: LOG ATTENDANCE
+       ============================================== -->
+  <div id="modal-attendance" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Log Attendance Record</h3>
+        <button class="modal-close" onclick="closeModal('modal-attendance')">&times;</button>
+      </div>
+      <form id="form-save-attendance">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="att-student-id">Student</label>
+            <select id="att-student-id" class="form-control" required>
+              <!-- Filled from student list -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="att-percentage">Attendance Percentage (0 - 100%)</label>
+            <input type="number" id="att-percentage" class="form-control" placeholder="92" min="0" max="100" required>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+            <div class="form-group">
+              <label class="form-label" for="att-present">Present Days</label>
+              <input type="number" id="att-present" class="form-control" placeholder="46" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="att-total">Total Class Days</label>
+              <input type="number" id="att-total" class="form-control" placeholder="50" min="1" value="50">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="att-notes">Evaluation / Notes</label>
+            <input type="text" id="att-notes" class="form-control" placeholder="e.g. Regular participation, satisfactory">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-attendance')">Cancel</button>
+          <button type="submit" class="btn btn-violet">Save Attendance</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="portal-footer">
+    <div class="container">
+      <p>© 2026 Student Performance Analytics Portal. Faculty Management System.</p>
+    </div>
+  </footer>
+
+  <script src="/js/flashlight.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/teacher.js"></script>
+</body>
+</html>

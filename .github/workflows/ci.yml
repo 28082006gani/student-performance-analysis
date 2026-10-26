@@ -1,0 +1,33 @@
+name: Node.js CI & Auto Check
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run verification test suite
+      run: |
+        node -e "
+          const db = require('./server/db');
+          db.initDatabase();
+          const { calculateClassAnalytics } = require('./server/analytics');
+          const a = calculateClassAnalytics();
+          console.log('Class analytics calculated successfully. Overall avg:', a.overallAverage);
+          if (a.overallAverage !== 69.73) throw new Error('Analytics calculation mismatch');
+        "

@@ -1,0 +1,396 @@
+/* =====================================================================
+   FLASHLITE UI DESIGN SYSTEM - STUDENT PERFORMANCE ANALYTICS PORTAL
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Color Palette - Deep Space & Luminescence */
+  --bg-primary: #080b12;
+  --bg-secondary: #0d121f;
+  --bg-card: rgba(16, 23, 38, 0.72);
+  --bg-card-hover: rgba(22, 33, 56, 0.85);
+  --bg-glass: rgba(255, 255, 255, 0.03);
+  --bg-glass-active: rgba(255, 255, 255, 0.07);
+
+  /* Flashlite Accent - Default Cyber Cyan */
+  --beam-color: rgba(0, 240, 255, 0.16);
+  --beam-color-rgb: 0, 240, 255;
+  --accent-cyan: #00f0ff;
+  --accent-cyan-glow: rgba(0, 240, 255, 0.35);
+  --accent-emerald: #10b981;
+  --accent-emerald-glow: rgba(16, 185, 129, 0.35);
+  --accent-violet: #8b5cf6;
+  --accent-violet-glow: rgba(139, 92, 246, 0.35);
+  --accent-amber: #f59e0b;
+  --accent-amber-glow: rgba(245, 158, 11, 0.35);
+  --accent-rose: #f43f5e;
+  --accent-rose-glow: rgba(244, 63, 94, 0.35);
+
+  /* Typography */
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Borders & Shadows */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-card: rgba(255, 255, 255, 0.12);
+  --border-active: rgba(0, 240, 255, 0.4);
+  --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-glowing: 0 0 30px rgba(0, 240, 255, 0.18);
+  --shadow-elevation: 0 16px 40px -10px rgba(0, 0, 0, 0.65);
+
+  /* Flashlight Dynamic Pointer Coordinates */
+  --cursor-x: 50vw;
+  --cursor-y: 50vh;
+  --beam-size: 450px;
+  --flashlight-opacity: 1;
+
+  /* Transitions */
+  --transition-fast: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Flashlight Theme Variations */
+body[data-torch-mode="emerald"] {
+  --beam-color: rgba(16, 185, 129, 0.16);
+  --beam-color-rgb: 16, 185, 129;
+  --accent-cyan: #10b981;
+  --border-active: rgba(16, 185, 129, 0.4);
+}
+
+body[data-torch-mode="violet"] {
+  --beam-color: rgba(139, 92, 246, 0.18);
+  --beam-color-rgb: 139, 92, 246;
+  --accent-cyan: #a78bfa;
+  --border-active: rgba(139, 92, 246, 0.45);
+}
+
+body[data-torch-mode="amber"] {
+  --beam-color: rgba(245, 158, 11, 0.16);
+  --beam-color-rgb: 245, 158, 11;
+  --accent-cyan: #fbbf24;
+  --border-active: rgba(245, 158, 11, 0.4);
+}
+
+/* Base Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  min-height: 100%;
+  font-family: var(--font-main);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Dynamic Ambient Flashlight Canvas / Spotlight Overlay */
+.flashlight-spotlight {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+    circle var(--beam-size) at var(--cursor-x) var(--cursor-y),
+    var(--beam-color) 0%,
+    rgba(var(--beam-color-rgb), 0.05) 40%,
+    transparent 75%
+  );
+  opacity: var(--flashlight-opacity);
+  transition: opacity 0.3s ease;
+}
+
+/* Ambient Grid Pattern */
+.bg-mesh-grid {
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, #000 35%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Flashlight Spotlight Aura on Cards */
+.torch-target {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-subtle);
+  overflow: hidden;
+  transition: border-color var(--transition-smooth), transform var(--transition-smooth), box-shadow var(--transition-smooth);
+}
+
+.torch-target::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(
+    400px circle at calc(var(--cursor-x) - var(--card-left, 0px)) calc(var(--cursor-y) - var(--card-top, 0px)),
+    rgba(var(--beam-color-rgb), 0.35),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  z-index: 2;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 1px;
+}
+
+.torch-target:hover::before {
+  opacity: 1;
+}
+
+.torch-target:hover {
+  border-color: rgba(var(--beam-color-rgb), 0.3);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevation), 0 0 25px rgba(var(--beam-color-rgb), 0.12);
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* App Header & Navbar */
+.app-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8, 11, 18, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.9rem 0;
+  transition: background var(--transition-smooth);
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+  color: var(--text-main);
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(139, 92, 246, 0.3));
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.25);
+  animation: pulseLogo 4s infinite alternate ease-in-out;
+}
+
+@keyframes pulseLogo {
+  0% { box-shadow: 0 0 12px rgba(0, 240, 255, 0.2); }
+  100% { box-shadow: 0 0 24px rgba(0, 240, 255, 0.5); }
+}
+
+.brand-text h1 {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(to right, #ffffff, #c7d2fe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-text p {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+/* Nav Actions */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+/* Flashlight Interactive Controller Floating / Header Bar */
+.torch-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.28rem 0.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+}
+
+.torch-mode-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.torch-mode-btn:hover {
+  transform: scale(1.15);
+}
+
+.torch-mode-btn.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.btn-mode-cyan { background: #00f0ff; }
+.btn-mode-emerald { background: #10b981; }
+.btn-mode-violet { background: #8b5cf6; }
+.btn-mode-amber { background: #f59e0b; }
+
+.torch-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: color var(--transition-fast);
+}
+
+.torch-toggle-btn:hover {
+  color: var(--text-main);
+}
+
+/* Typography styles */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--text-main);
+  letter-spacing: -0.015em;
+  font-weight: 700;
+}
+
+/* Toast Notifications */
+#toast-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  min-width: 300px;
+  max-width: 440px;
+  padding: 0.9rem 1.2rem;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  backdrop-filter: blur(16px);
+  color: var(--text-main);
+  font-size: 0.88rem;
+  box-shadow: var(--shadow-elevation);
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  animation: slideInToast 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+@keyframes slideInToast {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.toast-success {
+  border-left: 4px solid var(--accent-emerald);
+}
+
+.toast-error {
+  border-left: 4px solid var(--accent-rose);
+}
+
+.toast-info {
+  border-left: 4px solid var(--accent-cyan);
+}
+
+.toast-warning {
+  border-left: 4px solid var(--accent-amber);
+}
+
+/* Footer */
+.portal-footer {
+  margin-top: 5rem;
+  padding: 2.5rem 0;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-dim);
+  font-size: 0.84rem;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.footer-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer-links a:hover {
+  color: var(--accent-cyan);
+}
